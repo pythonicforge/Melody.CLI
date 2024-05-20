@@ -1,6 +1,6 @@
 # _Melody.CLI - A next-generation music streaming experience in your terminal (Upcoming Project)_
 
-![logo](src/assets/banner.png)
+![logo](https://github.com/pythonicforge/Melody.CLI/blob/main/src/assets/banner.png)
 
 ### _Project Overview_
 _Introducing Melody.CLI, an innovative command-line interface (CLI) music streaming application poised to revolutionize the way you experience music. Developed with Python, Melody.CLI will bring the advanced features of modern music streaming services to your terminal, combining simplicity with power in a lightweight, efficient package._
