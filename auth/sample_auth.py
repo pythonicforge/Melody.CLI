@@ -16,7 +16,7 @@ auth = firebase.auth()
 
 def signUp(email, password):
     try:
-        user = auth.create_user_with_email_and_password(email, password)
+        auth.create_user_with_email_and_password(email, password)
         print("User created")
         return True
     except:
