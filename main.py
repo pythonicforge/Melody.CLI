@@ -2,5 +2,5 @@ class MelodiCLI:
    def __init__(self):
      pass
    
-   def run(self):
+   def run(self): 
      pass
