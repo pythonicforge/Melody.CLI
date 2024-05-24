@@ -87,7 +87,6 @@ if __name__ == '__main__':
 ### _Contributing_
 
 _Contributions are always welcome!_
-_See `contributing.md` for ways to get started._
 _Please adhere to this project's `code of conduct`._
 
 _Stay tuned for Melody.CLI, an upcoming project that will redefine music streaming for the terminal generation. Melody.CLI is a testament to my skills in Python development, user-centric design, and my passion for creating innovative, real-world applications. Join me on this journey to bring a unique music streaming experience to life._
