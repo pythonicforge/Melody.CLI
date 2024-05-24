@@ -1,6 +1,6 @@
 # _Melody.CLI - A next-generation music streaming experience in your terminal (Upcoming Project)_
 
-![logo](src/assets/banner.png)
+![logo](https://github.com/pythonicforge/Melody.CLI/blob/main/assets/banner.png)
 
 ### _Project Overview_
 _Welcome to Melody CLI, a versatile command-line music player that brings the power of YouTube to your terminal. Whether you're a developer looking to integrate music playback into your own applications or a music enthusiast who enjoys the simplicity of command-line tools, Melody CLI has you covered._
@@ -62,7 +62,7 @@ _Install dependencies_
 ### _Usage/Examples_
 
 ```python
-from src.Melody_CLI import Player
+from Melody_CLI import Player
 
 if __name__ == '__main__':
     player = Player()
