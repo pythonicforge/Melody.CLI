@@ -1,4 +1,4 @@
-# _Melody.CLI - A next-generation music streaming experience in your terminal (Upcoming Project)_
+# _Melody.CLI_
 
 ![logo](https://github.com/pythonicforge/Melody.CLI/blob/main/assets/banner.png)
 
