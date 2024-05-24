@@ -51,6 +51,9 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# test audio files
+temp_audio
+
 # Translations
 *.mo
 *.pot
