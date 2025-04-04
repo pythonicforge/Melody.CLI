@@ -149,11 +149,19 @@ class MelodyCLI(cmd.Cmd):
         sys.exit(0)
 
     def downloadSong(self, videoID):
+        "Check if song exists in cache, else download it."
+        file_path = f"temp_audio/{videoID}.mp3"
+        
+        if os.path.exists(file_path):
+            self.print(f"🎵 Using cached song: {file_path}", "green")
+            return file_path
+
         url = f"{self.BASE_URL}{videoID}"
         os.makedirs("temp_audio", exist_ok=True)
+        
         ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': f'temp_audio/{videoID}.%(ext)s',
+            'outtmpl': file_path.replace(".mp3", ".%(ext)s"),
             'quiet': True,
             'no_warnings': True,
             'postprocessors': [{
@@ -162,12 +170,13 @@ class MelodyCLI(cmd.Cmd):
                 'preferredquality': '192',
             }],
         }
+        
         try:
             with YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                return f'temp_audio/{videoID}.mp3'
+                ydl.extract_info(url, download=True)
+                return file_path
         except Exception as e:
-            self.print(f"Error: {e}", "red")
+            self.print(f"❌ Error downloading: {e}", "red")
             return None
 
     def playSong(self, mp3_file):
