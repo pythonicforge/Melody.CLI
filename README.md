@@ -1,92 +1,92 @@
-# _Melody.CLI_
+# _🎵 Melody CLI_
 
-![logo](https://github.com/pythonicforge/Melody.CLI/blob/main/assets/banner.png)
+![banner](https://github.com/pythonicforge/Melody.CLI/blob/main/assets/banner.png)
 
-### _Project Overview_
-_Welcome to Melody CLI, a versatile command-line music player that brings the power of YouTube to your terminal. Whether you're a developer looking to integrate music playback into your own applications or a music enthusiast who enjoys the simplicity of command-line tools, Melody CLI has you covered._
+### _Terminal Tunes, Done Right._
 
-_With Melody CLI, you can easily search for songs on YouTube Music, download the audio, and play it directly from your terminal. The tool leverages the robust capabilities of yt-dlp for downloading and converting YouTube videos, ytmusicapi for interfacing with YouTube Music, and pygame for seamless audio playback._
+**Melody CLI** is a powerful, minimal, and interactive command-line music player that lets you search, download, and play songs from YouTube Music – all inside your terminal.
 
-_Our straightforward command-line interface ensures that navigating through the CLI is a breeze, making it accessible even to those who are new to command-line tools. Whether you're pausing, resuming, or stopping playback, Melody CLI provides intuitive controls to manage your listening experience._
+Built with Python, powered by `ytmusicapi`, `yt-dlp`, and `pygame`, this tool gives devs and terminal geeks a lightweight, distraction-free music experience.
 
-_Join us in exploring the world of music through the command line. Melody CLI is open-source and welcomes contributions from the community, so feel free to get involved and help us improve this tool._
+### 🚀 Features
 
-### _Why Melody.CLI ?_
-_In a world dominated by graphical user interfaces, Melody.CLI offers a refreshing alternative. Designed for music enthusiasts who appreciate the elegance and efficiency of the command line, Melody.CLI provides a distraction-free, immersive music experience. Whether you're a developer seeking seamless music playback while coding, or a terminal aficionado, Melody.CLI is crafted to meet your needs._
-
-### _Exciting Features to Look Forward To_
-
-- _**Search Songs**: Find songs by title or artist using the YouTube Music API._
-- _**Download Audio**: Download audio from YouTube videos and convert them to MP3._
-- _**Play Music**: Play downloaded songs directly from the command line._
-- _**Playback Controls**: Pause, resume, and stop playback using intuitive commands._
-
-### _Installation_
-
-_You can install Melody.CLI from PyPI:_
-
-```sh
-pip install melody_cli
-```
+- 🔍 **Search Songs** from YouTube Music right inside the terminal  
+- ⬇️ **Download & Cache Audio** using `yt-dlp` for efficient playback  
+- 🎧 **Play Music** with smooth `pygame` integration  
+- ⏸️ **Playback Controls** – Pause, Resume, Stop, Skip, Previous  
+- 🔁 **Autoplay Queue** – Auto-queues and plays recommended tracks  
+- 🧠 **Smart Caching** – Replays already downloaded tracks to save bandwidth  
+- 🧹 **Disk Management** – Only keeps the last 10 played songs in cache  
+- 🧼 **Clear CLI** – Use `clear` to reset your screen mid-session  
 
 
-### _Run Locally_
+### 🛠️ Setup & Usage
 
-_Clone the project_
+#### 🔄 Clone the Project
 
 ```bash
-  git clone https://github.com/pythonicforge/melody.CLI
+git clone https://github.com/pythonicforge/Melody.CLI
+cd Melody.CLI
 ```
 
-_Go to the project directory_
+#### 📦 Set Up Environment
 
 ```bash
-  cd melody.CLI
+python3 -m venv env
+source env/bin/activate  # or .\env\Scripts\activate on Windows
+pip install -r requirements.txt
 ```
 
-_Create a virtual environment_
+
+### 🎮 Run Melody CLI
 
 ```bash
-  pip install virtualenv
-```
-```bash
-  virtualenv env
+python melody.py
 ```
 
-_Install dependencies_
+Once you're in the CLI, use commands like:
 
 ```bash
-  pip -r "requirements.txt"
-```
-
-### _Usage/Examples_
-
-```python
-from Melody_CLI import Player
-
-if __name__ == '__main__':
-    player = Player()
-    searchQuery = input("Search for a song: ")
-    youtubeSearchResults, videoIDS = player.searchSong(searchQuery)
-    desiredVideo = int(input("Enter desired video number: "))
-    audioFile = player.downloadSong(videoIDS[desiredVideo])
-    player.playSong(audioFile)
-
+search <song name>   # Search songs
+play <index>         # Play a song from search results
+pause                # Pause music
+resume               # Resume playback
+stop                 # Stop playback (also disables autoplay)
+next                 # Play next song in the queue
+prev                 # Play previous song
+queue                # View the current queue
+autoplay             # Toggle autoplay on/off
+clear                # Clear the terminal screen
+bye                  # Exit the CLI
 ```
 
 
+### 🧠 How It Works
+
+- **Search:** Uses `ytmusicapi` to find relevant tracks.
+- **Download:** Fetches audio from YouTube with `yt-dlp`, stores it as MP3.
+- **Playback:** Uses `pygame` for low-latency audio control.
+- **Queue:** Automatically fills up with related tracks post-playback.
+- **Memory Friendly:** Automatically keeps cache folder to a max of 10 songs.
 
 
-### _Technical Highlights_
+### 💡 Tech Stack
 
-- _**YTMusicAPI:** Fetch songs and get search recommendations_
-- _**Yt_DLP:** Download YT songs and store them locally._
-- _**Pygame:** Playback and control the downloaded audio files._
+| Purpose          | Tool           |
+|------------------|----------------|
+| Search API       | ytmusicapi     |
+| Download Engine  | yt-dlp         |
+| Audio Playback   | pygame         |
+| CLI Framework    | Python's `cmd` |
 
 
-### _Contributing_
+### 🤝 Contribute
 
-_Contributions are always welcome!_
-_Please adhere to this project's `code of conduct`._
+Got ideas? Found bugs?  
+Pull requests and issues are super welcome! Let’s make terminal music cool again 💻🎶
 
-_Stay tuned for Melody.CLI, an upcoming project that will redefine music streaming for the terminal generation. Melody.CLI is a testament to my skills in Python development, user-centric design, and my passion for creating innovative, real-world applications. Join me on this journey to bring a unique music streaming experience to life._
+
+### 📢 Final Note
+
+This isn’t your average MP3 player – **Melody CLI** is for the terminal generation. It’s fast, snappy, and doesn’t need a GUI to vibe.
+

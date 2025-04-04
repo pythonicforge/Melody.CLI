@@ -136,7 +136,7 @@ class MelodyCLI(cmd.Cmd):
     def do_stop(self, arg):
         "Stop the currently playing song and prevent autoplay"
         if self.currently_playing:
-            self.manual_stop = True  # ✅ Set this before stopping
+            self.manual_stop = True
             pygame.mixer.music.stop()
             self.currently_playing = None
             self.is_paused = False
@@ -193,10 +193,12 @@ class MelodyCLI(cmd.Cmd):
             while pygame.mixer.music.get_busy() or self.is_paused:
                 time.sleep(1)
 
-            if not self.manual_stop and self.autoplay and self.queue_index < len(self.queue) - 1:
-                self.play_next()
+            was_manual = self.manual_stop
 
-            self.manual_stop = False 
+            self.manual_stop = False
+
+            if not was_manual and self.autoplay and self.queue_index < len(self.queue) - 1:
+                self.play_next()
 
         self.currently_playing = mp3_file
         self.playback_thread = threading.Thread(target=_play)
