@@ -20,10 +20,11 @@ class MelodyCLI(cmd.Cmd):
         self.currently_playing = None
         self.playback_thread = None
         self.is_paused = False
-        self.is_stopped = False  # ✅ Track manual stop
+        self.manual_stop = False
         self.BASE_URL = 'https://www.youtube.com/watch?v='
         self.currSong = ""
         self.autoplay = True
+        self.downloaded_tracks = []
 
 
     def print(self, text, color):
@@ -73,7 +74,7 @@ class MelodyCLI(cmd.Cmd):
         for track in related_songs:
             self.queue.append((track["videoId"], track["title"]))
 
-        self.queue_index = 0  # Start queue from first song
+        self.queue_index = 0
         self.print(f"🎶 Queue Updated! {len(self.queue)} songs added.", "cyan")
 
     def do_queue(self, arg):
@@ -133,12 +134,12 @@ class MelodyCLI(cmd.Cmd):
 
 
     def do_stop(self, arg):
-        "Stop the currently playing song"
+        "Stop the currently playing song and prevent autoplay"
         if self.currently_playing:
+            self.manual_stop = True  # ✅ Set this before stopping
             pygame.mixer.music.stop()
             self.currently_playing = None
             self.is_paused = False
-            self.is_stopped = True  # ✅ Mark as stopped
             self.clear_now_playing()
             self.print("Music stopped ⏹️", "yellow")
 
@@ -186,18 +187,16 @@ class MelodyCLI(cmd.Cmd):
             pygame.mixer.music.load(mp3_file)
             pygame.mixer.music.play()
             self.is_paused = False
-            self.is_stopped = False  # ✅ Reset stop flag when playing
+            self.manual_stop = False
             self.display_now_playing()
-            
+
             while pygame.mixer.music.get_busy() or self.is_paused:
-                if self.is_stopped:  # ✅ Stop playback loop if manually stopped
-                    return
                 time.sleep(1)
 
-            self.do_stop(None)
-
-            if self.autoplay and not self.is_stopped and self.queue_index < len(self.queue) - 1:
+            if not self.manual_stop and self.autoplay and self.queue_index < len(self.queue) - 1:
                 self.play_next()
+
+            self.manual_stop = False 
 
         self.currently_playing = mp3_file
         self.playback_thread = threading.Thread(target=_play)
