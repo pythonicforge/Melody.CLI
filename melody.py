@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import pygame
 import threading
@@ -83,6 +85,25 @@ class MelodyCLI(cmd.Cmd):
             self.print(f"🎶 Queue Updated! {len(self.queue)} songs added.", "cyan")
         except Exception as e:
             self.print(f"Error fetching related songs: {e}", "red")
+
+    def do_queueplay(self, arg):
+        "Play a specific song from the queue: queueplay <index>"
+        try:
+            index = int(arg) - 1
+            if 0 <= index < len(self.queue):
+                self.queue_index = index
+                song_id, title = self.queue[self.queue_index]
+                self.currSong = title
+                self.print(f"🎵 Playing from queue: {title}", "green")
+                mp3_file = self.downloadSong(song_id)
+                if mp3_file:
+                    self.playSong(mp3_file)
+            else:
+                self.print("❌ Index out of range!", "red")
+        except ValueError:
+            self.print("❌ Please enter a valid number. Usage: queueplay <index>", "red")
+        except Exception as e:
+            self.print(f"⚠️ Error playing from queue: {e}", "red")
 
     def do_queue(self, arg):
         "Show the queue"
