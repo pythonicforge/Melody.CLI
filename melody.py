@@ -20,9 +20,11 @@ class MelodyCLI(cmd.Cmd):
         self.currently_playing = None
         self.playback_thread = None
         self.is_paused = False
+        self.is_stopped = False  # ✅ Track manual stop
         self.BASE_URL = 'https://www.youtube.com/watch?v='
         self.currSong = ""
         self.autoplay = True
+
 
     def print(self, text, color):
         builtins.print(colored(text, color))
@@ -95,27 +97,25 @@ class MelodyCLI(cmd.Cmd):
             self.generate_queue(self.queue[self.queue_index][0])
             self.play_next()
 
+    def do_next(self, arg):
+        "Skip to the next song in queue"
+        if self.queue_index < len(self.queue) - 1:
+            self.play_next()
+        else:
+            self.print("🎵 Queue empty! Fetching new songs...", "yellow")
+            self.generate_queue(self.queue[self.queue_index][0])  # Get new queue
+            self.play_next()
+
     def do_prev(self, arg):
         "Play the previous song in queue"
         if self.queue_index > 0:
             self.queue_index -= 1
             prev_song = self.queue[self.queue_index]
-            self.currSong = prev_song[1]  # Update song title ✅
+            self.currSong = prev_song[1]
             self.print(f"⏮️ Replaying: {self.currSong}", "green")
             self.playSong(self.downloadSong(prev_song[0]))
         else:
             self.print("🚫 No previous songs!", "red")
-
-    def do_prev(self, arg):
-        "Play the previous song in queue"
-        if self.queue_index > 0:
-            self.queue_index -= 1
-            prev_song = self.queue[self.queue_index]
-            self.print(f"⏮️ Replaying: {prev_song[1]}", "green")
-            self.playSong(self.downloadSong(prev_song[0]))
-        else:
-            self.print("🚫 No previous songs!", "red")
-
 
     def do_pause(self, arg):
         "Pause the currently playing song"
@@ -138,8 +138,10 @@ class MelodyCLI(cmd.Cmd):
             pygame.mixer.music.stop()
             self.currently_playing = None
             self.is_paused = False
+            self.is_stopped = True  # ✅ Mark as stopped
             self.clear_now_playing()
             self.print("Music stopped ⏹️", "yellow")
+
 
     def do_bye(self, arg):
         "Exit the application"
@@ -175,19 +177,23 @@ class MelodyCLI(cmd.Cmd):
             pygame.mixer.music.load(mp3_file)
             pygame.mixer.music.play()
             self.is_paused = False
+            self.is_stopped = False  # ✅ Reset stop flag when playing
             self.display_now_playing()
             
             while pygame.mixer.music.get_busy() or self.is_paused:
+                if self.is_stopped:  # ✅ Stop playback loop if manually stopped
+                    return
                 time.sleep(1)
 
             self.do_stop(None)
 
-            if self.autoplay and self.queue_index < len(self.queue) - 1:
+            if self.autoplay and not self.is_stopped and self.queue_index < len(self.queue) - 1:
                 self.play_next()
 
         self.currently_playing = mp3_file
         self.playback_thread = threading.Thread(target=_play)
         self.playback_thread.start()
+
 
     def display_now_playing(self):
         print("\n" + "="*40)
