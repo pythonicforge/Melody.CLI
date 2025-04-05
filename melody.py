@@ -13,34 +13,28 @@ import time
 
 class MelodyCLI(cmd.Cmd):
     os.system("clear")
-    intro = "Welcome to Melody CLI! Type 'help' to list commands."
+    intro = "Welcome to Melody.CLI! Type 'help' to list commands."
     prompt = "(melody) "
 
     def __init__(self):
         super().__init__()
         self.youtube_music = YTMusic()
-        self.currently_playing = None
-        self.playback_thread = None
-        self.is_paused = False
         self.BASE_URL = 'https://www.youtube.com/watch?v='
-        self.currSong = ""
-        self.autoplay = True
-        self.downloaded_tracks = []
-        self.max_cache_size = 10
         self.queue = []
+        self.currSong = ""
         self.queue_index = 0
+        self.autoplay = True
+        self.is_paused = False
+        self.playback_thread = None
+        self.currently_playing = None
 
     def print(self, text, color):
+        """Modified print function that prints text with colors"""
         builtins.print(colored(text, color))
 
     def do_clear(self, arg):
+        """Clears the terminal screen"""
         os.system("clear")
-
-    def do_autoplay(self, arg):
-        "Toggle autoplay ON/OFF"
-        self.autoplay = not self.autoplay
-        status = "ON" if self.autoplay else "OFF"
-        self.print(f"Autoplay is now {status} 🔁", "cyan")
 
     def do_search(self, searchString):
         "Search for a song: search <song name>"
@@ -71,45 +65,8 @@ class MelodyCLI(cmd.Cmd):
         except Exception as e:
             self.print(f"Error: {e}", "red")
 
-    def generate_queue(self, current_video_id):
-        "Fetch related songs and build a queue"
-        self.queue = []
-        self.queue_index = 0
-        try:
-            related_songs = self.youtube_music.get_watch_playlist(current_video_id).get("tracks", [])
-            if not related_songs:
-                self.print("No related songs found!", "red")
-                return
-            for track in related_songs:
-                self.queue.append((track["videoId"], track["title"]))
-            self.print(f"🎶 Queue Updated! {len(self.queue)} songs added.", "cyan")
-        except Exception as e:
-            self.print(f"Error fetching related songs: {e}", "red")
-
-    def do_queueplay(self, arg):
-        "Play a specific song from the queue: queueplay <index>"
-        try:
-            index = int(arg) - 1
-            if 0 <= index < len(self.queue):
-                self.queue_index = index
-                song_id, title = self.queue[self.queue_index]
-                self.currSong = title
-                self.print(f"🎵 Playing from queue: {title}", "green")
-                mp3_file = self.downloadSong(song_id)
-                if mp3_file:
-                    self.playSong(mp3_file)
-            else:
-                self.print("❌ Index out of range!", "red")
-        except ValueError:
-            self.print("❌ Please enter a valid number. Usage: queueplay <index>", "red")
-        except Exception as e:
-            self.print(f"⚠️ Error playing from queue: {e}", "red")
-
-    def do_queue(self, arg):
-        "Show the queue"
-        self.print("\n🎶 Queue", color="cyan")
-        for idx, songTuple in enumerate(self.queue, start=1):
-            self.print(f"{idx}. {songTuple[1]}", color="cyan")
+    def do_next(self, arg):
+        self.play_next()
 
     def play_next(self):
         if self.queue_index < len(self.queue) - 1:
@@ -122,9 +79,6 @@ class MelodyCLI(cmd.Cmd):
             self.print("🎵 No more songs in queue! Fetching new songs...", "yellow")
             self.generate_queue(self.queue[self.queue_index][0])
             self.play_next()
-
-    def do_next(self, arg):
-        self.play_next()
 
     def do_prev(self, arg):
         if self.queue_index > 0:
@@ -166,6 +120,52 @@ class MelodyCLI(cmd.Cmd):
         self.print("Goodbye! 👋", "green")
         sys.exit(0)
 
+    def do_autoplay(self, arg):
+        "Toggle autoplay ON/OFF"
+        self.autoplay = not self.autoplay
+        status = "ON" if self.autoplay else "OFF"
+        self.print(f"Autoplay is now {status} 🔁", "cyan")
+
+    def generate_queue(self, current_video_id):
+        "Fetch related songs and build a queue"
+        self.queue = []
+        self.queue_index = 0
+        try:
+            related_songs = self.youtube_music.get_watch_playlist(current_video_id).get("tracks", [])
+            if not related_songs:
+                self.print("No related songs found!", "red")
+                return
+            for track in related_songs:
+                self.queue.append((track["videoId"], track["title"]))
+            self.print(f"🎶 Queue Updated! {len(self.queue)} songs added.", "cyan")
+        except Exception as e:
+            self.print(f"Error fetching related songs: {e}", "red")
+
+    def do_queue(self, arg):
+        "Show the queue"
+        self.print("\n🎶 Queue", color="cyan")
+        for idx, songTuple in enumerate(self.queue, start=1):
+            self.print(f"{idx}. {songTuple[1]}", color="cyan")
+
+    def do_queueplay(self, arg):
+        "Play a specific song from the queue: queueplay <index>"
+        try:
+            index = int(arg) - 1
+            if 0 <= index < len(self.queue):
+                self.queue_index = index
+                song_id, title = self.queue[self.queue_index]
+                self.currSong = title
+                self.print(f"🎵 Playing from queue: {title}", "green")
+                mp3_file = self.downloadSong(song_id)
+                if mp3_file:
+                    self.playSong(mp3_file)
+            else:
+                self.print("❌ Index out of range!", "red")
+        except ValueError:
+            self.print("❌ Please enter a valid number. Usage: queueplay <index>", "red")
+        except Exception as e:
+            self.print(f"⚠️ Error playing from queue: {e}", "red")
+
     def downloadSong(self, videoID):
         file_path = f"temp_audio/{videoID}.mp3"
 
@@ -191,22 +191,10 @@ class MelodyCLI(cmd.Cmd):
         try:
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.extract_info(url, download=True)
-                self.cleanup_cache()
                 return file_path
         except Exception as e:
             self.print(f"❌ Error downloading: {e}", "red")
             return None
-
-    def cleanup_cache(self):
-        "Keep only the latest N files in the temp_audio folder"
-        try:
-            files = [os.path.join("temp_audio", f) for f in os.listdir("temp_audio") if f.endswith(".mp3")]
-            files.sort(key=os.path.getmtime, reverse=True)
-            for f in files[self.max_cache_size:]:
-                os.remove(f)
-                self.print(f"Deleted old cached file: {f}", "magenta")
-        except Exception as e:
-            self.print(f"Error cleaning up cache: {e}", "red")
 
     def playSong(self, mp3_file):
         def _play():
@@ -239,7 +227,6 @@ class MelodyCLI(cmd.Cmd):
         print("\n" + "="*40)
         print("🎵 No song is currently playing.")
         print("="*40 + "\n")
-
 
 if __name__ == "__main__":
     try:
