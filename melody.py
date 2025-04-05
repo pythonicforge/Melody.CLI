@@ -11,6 +11,8 @@ from termcolor import colored
 import sys
 import time
 
+from typing import Optional, Literal
+
 class MelodyCLI(cmd.Cmd):
     os.system("clear")
     intro = "Welcome to Melody.CLI! Type 'help' to list commands."
@@ -20,23 +22,24 @@ class MelodyCLI(cmd.Cmd):
         super().__init__()
         self.youtube_music = YTMusic()
         self.BASE_URL = 'https://www.youtube.com/watch?v='
-        self.queue = []
-        self.currSong = ""
-        self.queue_index = 0
-        self.autoplay = True
-        self.is_paused = False
-        self.playback_thread = None
-        self.currently_playing = None
+        self.queue: list[tuple[str, str]] = []
+        self.currSong: str = ""
+        self.queue_index: int = 0
+        self.autoplay: bool = True
+        self.is_paused: bool = False
+        self.playback_thread: threading.Thread | None = None
+        self.currently_playing: str | None = None
+        self.filtered_results:  dict[int, list[str]] = {}
 
-    def print(self, text, color):
+    def print(self, text:str, color:Optional[Literal['black', 'grey', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'light_grey', 'dark_grey', 'light_red', 'light_green', 'light_yellow', 'light_blue', 'light_magenta', 'light_cyan', 'white']]) -> None:
         """Modified print function that prints text with colors"""
         builtins.print(colored(text, color))
 
-    def do_clear(self, arg):
+    def do_clear(self, arg:str) -> None:
         """Clears the terminal screen"""
         os.system("clear")
 
-    def do_search(self, searchString):
+    def do_search(self, searchString:str) -> None:
         "Search for a song: search <song name>"
         if not searchString.strip():
             self.print("Please provide a search query!", "red")
@@ -51,7 +54,7 @@ class MelodyCLI(cmd.Cmd):
                 self.print(f"{index}. {result['title']} - {result.get('duration', 'Unknown Duration')}", "yellow")
                 index += 1
 
-    def do_play(self, arg):
+    def do_play(self, arg:str) -> None:
         try:
             index = int(arg)
             song_id = self.filtered_results[index][0]
@@ -65,10 +68,10 @@ class MelodyCLI(cmd.Cmd):
         except Exception as e:
             self.print(f"Error: {e}", "red")
 
-    def do_next(self, arg):
+    def do_next(self, arg:str) -> None:
         self.play_next()
 
-    def play_next(self):
+    def play_next(self) -> None:
         if self.queue_index < len(self.queue) - 1:
             self.queue_index += 1
             next_song = self.queue[self.queue_index]
@@ -80,7 +83,7 @@ class MelodyCLI(cmd.Cmd):
             self.generate_queue(self.queue[self.queue_index][0])
             self.play_next()
 
-    def do_prev(self, arg):
+    def do_prev(self, arg:str) -> None:
         if self.queue_index > 0:
             self.queue_index -= 1
             prev_song = self.queue[self.queue_index]
@@ -90,19 +93,19 @@ class MelodyCLI(cmd.Cmd):
         else:
             self.print("🚫 No previous songs!", "red")
 
-    def do_pause(self, arg):
+    def do_pause(self, arg:str) -> None:
         if pygame.mixer.music.get_busy() and not self.is_paused:
             pygame.mixer.music.pause()
             self.is_paused = True
             self.print("Music paused ⏸️", "yellow")
 
-    def do_resume(self, arg):
+    def do_resume(self, arg:str) -> None:
         if self.is_paused:
             pygame.mixer.music.unpause()
             self.is_paused = False
             self.print("Music resumed ▶️", "green")
 
-    def do_bye(self, arg):
+    def do_bye(self, arg:str) -> None:
         self.print("Shutting down Melody CLI... 👋", "yellow")
         try:
             if pygame.mixer.get_init():
@@ -120,13 +123,13 @@ class MelodyCLI(cmd.Cmd):
         self.print("Goodbye! 👋", "green")
         sys.exit(0)
 
-    def do_autoplay(self, arg):
+    def do_autoplay(self, arg:str) -> None:
         "Toggle autoplay ON/OFF"
         self.autoplay = not self.autoplay
         status = "ON" if self.autoplay else "OFF"
         self.print(f"Autoplay is now {status} 🔁", "cyan")
 
-    def generate_queue(self, current_video_id):
+    def generate_queue(self, current_video_id:str) -> None:
         "Fetch related songs and build a queue"
         self.queue = []
         self.queue_index = 0
@@ -141,13 +144,13 @@ class MelodyCLI(cmd.Cmd):
         except Exception as e:
             self.print(f"Error fetching related songs: {e}", "red")
 
-    def do_queue(self, arg):
+    def do_queue(self, arg:str) -> None:
         "Show the queue"
         self.print("\n🎶 Queue", color="cyan")
         for idx, songTuple in enumerate(self.queue, start=1):
             self.print(f"{idx}. {songTuple[1]}", color="cyan")
 
-    def do_queueplay(self, arg):
+    def do_queueplay(self, arg:str) -> None:
         "Play a specific song from the queue: queueplay <index>"
         try:
             index = int(arg) - 1
@@ -159,6 +162,8 @@ class MelodyCLI(cmd.Cmd):
                 mp3_file = self.downloadSong(song_id)
                 if mp3_file:
                     self.playSong(mp3_file)
+                else:
+                    self.print("⚠️ Failed to play song.", "red")
             else:
                 self.print("❌ Index out of range!", "red")
         except ValueError:
@@ -166,7 +171,7 @@ class MelodyCLI(cmd.Cmd):
         except Exception as e:
             self.print(f"⚠️ Error playing from queue: {e}", "red")
 
-    def downloadSong(self, videoID):
+    def downloadSong(self, videoID:str) -> str | None:
         file_path = f"temp_audio/{videoID}.mp3"
 
         if os.path.exists(file_path):
@@ -196,7 +201,7 @@ class MelodyCLI(cmd.Cmd):
             self.print(f"❌ Error downloading: {e}", "red")
             return None
 
-    def playSong(self, mp3_file):
+    def playSong(self, mp3_file:str) -> None:
         def _play():
             try:
                 pygame.init()
@@ -218,12 +223,12 @@ class MelodyCLI(cmd.Cmd):
         self.playback_thread = threading.Thread(target=_play)
         self.playback_thread.start()
 
-    def display_now_playing(self):
+    def display_now_playing(self) -> None:
         print("\n" + "="*40)
         print(f"🎶 NOW PLAYING: {colored(self.currSong, 'cyan')}")
         print("="*40 + "\n")
 
-    def clear_now_playing(self):
+    def clear_now_playing(self) -> None:
         print("\n" + "="*40)
         print("🎵 No song is currently playing.")
         print("="*40 + "\n")
