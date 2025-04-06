@@ -10,11 +10,6 @@ import builtins
 from termcolor import colored
 import sys
 import time
-from pytube import YouTube
-from pydub import AudioSegment
-from pytube.request import default_range_size, stream, urlopen
-import ssl
-from pytube.exceptions import RegexMatchError
 
 from typing import Optional, Literal
 
@@ -25,7 +20,6 @@ class MelodyCLI(cmd.Cmd):
 
     def __init__(self):
         super().__init__()
-        # Removed OAuthCredentials and updated YTMusic initialization
         if not os.path.exists('oauth.json'):
             YTMusic.setup(filepath='oauth.json')
         self.youtube_music = YTMusic('oauth.json')
@@ -211,23 +205,6 @@ class MelodyCLI(cmd.Cmd):
         except Exception as e:
             self.print(f"❌ Error downloading or converting: {e}", "red")
             return None
-
-    def patch_pytube(self) -> None:
-        """Patch pytube to fix 400 Bad Request errors."""
-        import pytube
-        import re
-
-        # Fix for the cipher key extraction
-        if hasattr(pytube.cipher, "_get_initial_function_name"):
-            pytube.cipher._get_initial_function_name = lambda js: re.search(r"function\(\w\){\w=\w\.split\(\"\"\);.*?return \w\.join\(\"\"\)}", js).group(0)
-
-        # Fix for the signature function name
-        if hasattr(pytube.cipher, "_get_transform_plan"):
-            pytube.cipher._get_transform_plan = lambda js: re.findall(r"\w+\.(\w+)\(\w,\d+\)", js)
-
-        # Fix for the player URL
-        if hasattr(pytube.extract, "get_ytplayer_config"):
-            pytube.extract.get_ytplayer_config = lambda html: re.search(r"ytInitialPlayerResponse\s*=\s*({.*?});", html).group(1)
 
     def playSong(self, mp3_file:str) -> None:
         def _play():
