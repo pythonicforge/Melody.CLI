@@ -20,9 +20,7 @@ class MelodyCLI(cmd.Cmd):
 
     def __init__(self):
         super().__init__()
-        if not os.path.exists('oauth.json'):
-            YTMusic.setup(filepath='oauth.json')
-        self.youtube_music = YTMusic('oauth.json')
+        self.youtube_music = YTMusic()
         self.BASE_URL = 'https://www.youtube.com/watch?v='
         self.queue: list[tuple[str, str]] = []
         self.currSong: str = ""
@@ -193,17 +191,14 @@ class MelodyCLI(cmd.Cmd):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'cookiefile': 'cookies.txt',
         }
 
         try:
-            self.print(f"⬇️ Downloading: {url}", "yellow")
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.extract_info(url, download=True)
-            self.print(f"🎵 Downloaded and converted to MP3: {file_path}", "green")
-            return file_path
+                return file_path
         except Exception as e:
-            self.print(f"❌ Error downloading or converting: {e}", "red")
+            self.print(f"❌ Error downloading: {e}", "red")
             return None
 
     def playSong(self, mp3_file:str) -> None:
