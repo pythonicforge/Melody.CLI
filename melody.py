@@ -171,7 +171,7 @@ class MelodyCLI(cmd.Cmd):
         except Exception as e:
             self.print(f"⚠️ Error playing from queue: {e}", "red")
 
-    def downloadSong(self, videoID:str) -> str:
+    def downloadSong(self, videoID: str) -> str:
         file_path = f"temp_audio/{videoID}.mp3"
 
         if os.path.exists(file_path):
@@ -191,12 +191,18 @@ class MelodyCLI(cmd.Cmd):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
+            'http_headers': {  # Add HTTP headers
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9',
+            },
         }
 
         try:
+            self.print(f"⬇️ Downloading: {url}", "yellow")
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.extract_info(url, download=True)
-                return file_path
+            self.print(f"🎵 Downloaded and converted to MP3: {file_path}", "green")
+            return file_path
         except Exception as e:
             self.print(f"❌ Error downloading: {e}", "red")
             return None
