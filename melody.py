@@ -182,7 +182,7 @@ class MelodyCLI(cmd.Cmd):
         os.makedirs("temp_audio", exist_ok=True)
 
         ydl_opts = {
-            'format': 'ba', # ba = best autio, typically webm container with opus audio
+            'format': 'ba', # ba = best audio, typically webm container with opus audio
             'outtmpl': file_path.replace(".opus", ".%(ext)s"),
             'quiet': True,
             'no_warnings': True,
