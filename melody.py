@@ -171,6 +171,12 @@ class MelodyCLI(cmd.Cmd):
         except Exception as e:
             self.print(f"⚠️ Error playing from queue: {e}", "red")
 
+    def do_clearqueue(self,current_video_id:str) -> None:
+        "Clear the queue"
+        self.queue = []
+        self.queue_index = 0
+        self.print("🧹 Queue has been cleared", "green")
+
     def downloadSong(self, videoID: str) -> str:
         file_path = f"temp_audio/{videoID}.mp3"
 
