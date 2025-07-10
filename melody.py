@@ -172,7 +172,7 @@ class MelodyCLI(cmd.Cmd):
             self.print(f"⚠️ Error playing from queue: {e}", "red")
 
     def downloadSong(self, videoID: str) -> str:
-        file_path = f"temp_audio/{videoID}.mp3"
+        file_path = f"temp_audio/{videoID}.opus"
 
         if os.path.exists(file_path):
             self.print(f"🎵 Using cached song: {file_path}", "green")
@@ -182,14 +182,13 @@ class MelodyCLI(cmd.Cmd):
         os.makedirs("temp_audio", exist_ok=True)
 
         ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': file_path.replace(".mp3", ".%(ext)s"),
+            'format': 'ba', # ba = best audio, typically webm container with opus audio
+            'outtmpl': file_path.replace(".opus", ".%(ext)s"),
             'quiet': True,
             'no_warnings': True,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
+                'preferredcodec': 'opus',
             }],
             'http_headers': {  # Add HTTP headers
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
@@ -201,18 +200,18 @@ class MelodyCLI(cmd.Cmd):
             self.print(f"⬇️ Downloading: {url}", "yellow")
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.extract_info(url, download=True)
-            self.print(f"🎵 Downloaded and converted to MP3: {file_path}", "green")
+            self.print(f"🎵 Downloaded track: {file_path}", "green")
             return file_path
         except Exception as e:
             self.print(f"❌ Error downloading: {e}", "red")
             return None
 
-    def playSong(self, mp3_file:str) -> None:
+    def playSong(self, audio_file:str) -> None:
         def _play():
             try:
                 pygame.init()
                 pygame.mixer.init()
-                pygame.mixer.music.load(mp3_file)
+                pygame.mixer.music.load(audio_file)
                 pygame.mixer.music.play()
                 self.is_paused = False
                 self.display_now_playing()
@@ -225,7 +224,7 @@ class MelodyCLI(cmd.Cmd):
             except Exception as e:
                 self.print(f"Playback error: {e}", "red")
 
-        self.currently_playing = mp3_file
+        self.currently_playing = audio_file
         self.playback_thread = threading.Thread(target=_play)
         self.playback_thread.start()
 
